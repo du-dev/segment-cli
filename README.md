@@ -172,6 +172,6 @@ C005,62,22,1100,2024-10-30
 
 ## Auteur
 
-**Goupe 13** — Master IA — 2026
+**Groupe 13** — Master IA — 2026
 
 Repository : [https://github.com/du-dev/segment-cli](https://github.com/du-dev/segment-cli)
