@@ -6,19 +6,19 @@
 # =============================================================================
 
 # Interface web interactive pour l'application de segmentation
-streamlit==1.32.0
+streamlit
 
 # Manipulation et analyse des données tabulaires (DataFrames)
-pandas==2.2.1
+pandas
 
 # Calculs numériques et opérations sur les tableaux
-numpy==1.26.4
+numpy
 
 # Algorithmes de machine learning (K-Means, normalisation, métriques)
-scikit-learn==1.4.1
+scikit-learn
 
 # Graphiques interactifs (scatter plots 3D, visualisation des clusters)
-plotly==5.20.0
+plotly
 
 # Outils scientifiques supplémentaires (statistiques, optimisation)
-scipy==1.12.0
+scipy
