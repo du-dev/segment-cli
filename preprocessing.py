@@ -10,6 +10,8 @@ Flux de l'application :
 3. Calculer les statistiques descriptives pour l'analyse
 """
 
+import io
+
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
@@ -20,10 +22,121 @@ COLONNES_RFM = ["Recency", "Frequency", "Monetary"]
 # Colonnes optionnelles reconnues par le module
 COLONNE_ID_CLIENT = "CustomerID"
 
+# Liste des encodages à essayer lorsqu'un fichier n'est pas en UTF-8
+# Ordre : utf-8 d'abord, puis latin-1 (alias iso-8859-1) fréquent pour le français,
+# puis cp1252 (Windows) qui est une extension de latin-1
+ENCODAGES_CSV = ["utf-8", "latin-1", "cp1252"]
+
 
 # =============================================================================
 # === CHARGEMENT ET VALIDATION ===
 # =============================================================================
+
+
+def _detect_encoding(file_bytes):
+    """
+    Détecte l'encodage d'un fichier à partir de ses bytes bruts.
+
+    Utilise la bibliothèque chardet si disponible, sinon retourne None
+    pour déclencher la méthode de fallback par essais successifs.
+
+    Parameters
+    ----------
+    file_bytes : bytes
+        Contenu brut du fichier à analyser.
+
+    Returns
+    -------
+    str ou None
+        Encodage détecté (ex: "utf-8", "ISO-8859-1"), ou None
+        si chardet n'est pas disponible ou si la détection échoue.
+    """
+    try:
+        import chardet
+        result = chardet.detect(file_bytes)
+        return result.get("encoding") or None
+    except ImportError:
+        return None
+
+
+def _lire_csv_avec_encodage(source, is_uploaded):
+    """
+    Lit un fichier CSV en essayant plusieurs encodages.
+
+    Pour un fichier sur disque, détecte d'abord l'encodage avec chardet.
+    Pour un fichier uploadé, lit les bytes puis détecte l'encodage.
+    En dernier recours, essaie chaque encodage de la liste ENCODAGES_CSV.
+
+    Parameters
+    ----------
+    source : str, bytes ou UploadedFile
+        Chemin du fichier, contenu bytes, ou objet fichier uploadé.
+    is_uploaded : bool
+        True si la source est un fichier uploadé (objet avec .read()).
+
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame lu avec le premier encodage qui fonctionne.
+
+    Raises
+    ------
+    ValueError
+        Si aucun encodage ne permet de lire le fichier.
+    """
+    # --- Cas 1 : fichier uploadé (Streamlit UploadedFile) ---
+    if is_uploaded:
+        # Lecture des bytes bruts depuis l'objet uploadé
+        source.seek(0)
+        raw_bytes = source.read()
+
+        # Détection de l'encodage via chardet
+        detected = _detect_encoding(raw_bytes)
+        if detected:
+            try:
+                source.seek(0)
+                return pd.read_csv(io.BytesIO(raw_bytes), comment="#", encoding=detected)
+            except (UnicodeDecodeError, Exception):
+                pass
+
+        # Fallback : essai des encodages courants
+        for enc in ENCODAGES_CSV:
+            try:
+                source.seek(0)
+                return pd.read_csv(io.BytesIO(raw_bytes), comment="#", encoding=enc)
+            except (UnicodeDecodeError, Exception):
+                continue
+
+        raise ValueError(
+            f"Impossible de lire le fichier : aucun encodage reconnu. "
+            f"Encodages essayés : {ENCODAGES_CSV}"
+        )
+
+    # --- Cas 2 : fichier sur disque (chemin string) ---
+    # Détection de l'encodage via chardet sur les premiers bytes
+    # Lecture séparée de l'open() pour laisser remonter FileNotFoundError
+    with open(source, "rb") as f:
+        raw_bytes = f.read(10000)
+    detected = _detect_encoding(raw_bytes)
+    if detected:
+        try:
+            return pd.read_csv(source, comment="#", encoding=detected)
+        except (UnicodeDecodeError, Exception):
+            pass
+
+    # Fallback : essai des encodages courants
+    for enc in ENCODAGES_CSV:
+        try:
+            return pd.read_csv(source, comment="#", encoding=enc)
+        except (UnicodeDecodeError, Exception):
+            continue
+
+    raise ValueError(
+        f"Impossible de lire le fichier : aucun encodage reconnu. "
+        f"Encodages essayés : {ENCODAGES_CSV}. Vérifiez que le fichier "
+        f"est un CSV valide."
+    )
+
 
 def load_and_validate_csv(file):
     """
@@ -31,6 +144,10 @@ def load_and_validate_csv(file):
 
     Accepte indifféremment un fichier uploadé via Streamlit (objet UploadedFile)
     ou un chemin d'accès vers un fichier CSV sur disque.
+
+    Détecte automatiquement l'encodage (UTF-8, latin-1, cp1252, etc.)
+    pour éviter les erreurs de lecture avec les fichiers contenant
+    des caractères accentués.
 
     Nettoie les données en supprimant les lignes avec des valeurs manquantes
     et les éventuels doublons d'identifiants clients.
@@ -51,19 +168,18 @@ def load_and_validate_csv(file):
     ------
     ValueError
         Si le fichier ne contient pas l'une des colonnes RFM obligatoires
-        (Recency, Frequency, Monetary).
+        (Recency, Frequency, Monetary), ou si le fichier est illisible.
     """
-    # --- Lecture du fichier CSV ---
-    # Streamlit renvoie un objet UploadedFile avec une méthode .read()
-    # Un chemin string est lu directement par pandas
     try:
         if hasattr(file, "read"):
             # Fichier uploadé via Streamlit (UploadedFile)
-            df = pd.read_csv(file, comment="#")
+            df = _lire_csv_avec_encodage(file, is_uploaded=True)
         else:
             # Chemin de fichier classique (string)
-            df = pd.read_csv(file, comment="#")
+            df = _lire_csv_avec_encodage(file, is_uploaded=False)
     except Exception as e:
+        if "Impossible de lire" in str(e):
+            raise
         raise ValueError(f"Impossible de lire le fichier : {e}")
 
     # --- Vérification de la présence des colonnes RFM obligatoires ---
