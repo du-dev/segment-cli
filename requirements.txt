@@ -1,0 +1,24 @@
+# =============================================================================
+# Dépendances du projet segment-cli
+# =============================================================================
+# Application de segmentation de clients via K-Means avec interface Streamlit.
+# Toutes les versions sont exactes pour garantir la reproductibilité.
+# =============================================================================
+
+# Interface web interactive pour l'application de segmentation
+streamlit==1.32.0
+
+# Manipulation et analyse des données tabulaires (DataFrames)
+pandas==2.2.1
+
+# Calculs numériques et opérations sur les tableaux
+numpy==1.26.4
+
+# Algorithmes de machine learning (K-Means, normalisation, métriques)
+scikit-learn==1.4.1
+
+# Graphiques interactifs (scatter plots 3D, visualisation des clusters)
+plotly==5.20.0
+
+# Outils scientifiques supplémentaires (statistiques, optimisation)
+scipy==1.12.0
