@@ -59,7 +59,7 @@ st.markdown(
         /* Réduction des marges autour du contenu principal */
         .block-container { padding-top: 2rem; padding-bottom: 2rem; }
 
-        /* Cartes de segments avec ombre légère */
+        /* Cartes de segments avec ombre légère et texte lisible */
         .segment-card {
             background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
             border-left: 5px solid;
@@ -68,6 +68,16 @@ st.markdown(
             margin-bottom: 1rem;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             transition: transform 0.2s;
+            color: #212529 !important;
+        }
+        .segment-card p,
+        .segment-card strong,
+        .segment-card span {
+            color: #212529 !important;
+        }
+        .segment-card h3 {
+            color: #212529 !important;
+            margin-top: 0 !important;
         }
         .segment-card:hover { transform: translateY(-2px); }
 
@@ -529,16 +539,22 @@ with tab_fiches:
         # --- Affichage de la fiche dans une carte stylisée ---
         st.markdown(
             f"""
-            <div class="segment-card" style="border-left-color: {couleur}">
+            <div class="segment-card" style="border-left-color: {couleur};">
                 <h3 style="color: {couleur}; margin-top: 0;">
                     Segment {cluster_num} — {nom_court}
                 </h3>
-                <p><strong>Taille :</strong> {taille} clients</p>
-                <p><strong>Récence moy. :</strong> {moy_r:.0f} jours |
-                   <strong>Fréquence moy. :</strong> {moy_f:.0f} achats |
-                   <strong>Dépenses moy. :</strong> {moy_m:.0f} €</p>
-                <p>{description}</p>
-                <p>{reco}</p>
+                <p style="color: #212529;">
+                    <strong style="color: #212529;">Taille :</strong> {taille} clients
+                </p>
+                <p style="color: #212529;">
+                    <strong style="color: #212529;">Récence moy. :</strong> {moy_r:.0f} jours
+                    &nbsp;|&nbsp;
+                    <strong style="color: #212529;">Fréquence moy. :</strong> {moy_f:.0f} achats
+                    &nbsp;|&nbsp;
+                    <strong style="color: #212529;">Dépenses moy. :</strong> {moy_m:.0f} €
+                </p>
+                <p style="color: #343a40;">{description}</p>
+                <p style="color: #343a40;">{reco}</p>
             </div>
             """,
             unsafe_allow_html=True,
