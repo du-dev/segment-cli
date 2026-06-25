@@ -1,0 +1,79 @@
+# =============================================================================
+# Gitignore — Projet Segment-CLI (Python / Streamlit)
+# =============================================================================
+
+# --- Python ---
+# Bytecode compilé et cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# --- Environnements virtuels ---
+.venv/
+venv/
+env/
+ENV/
+
+# --- Distribution et packaging ---
+*.egg-info/
+*.egg
+dist/
+build/
+*.whl
+
+# --- Outils de test et couverture ---
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# --- Jupyter Notebook ---
+.ipynb_checkpoints/
+
+# --- IDE et éditeurs ---
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# --- Systèmes d'exploitation ---
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# --- Variables d'environnement et secrets ---
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# --- Streamlit ---
+# Fichiers de configuration locale Streamlit
+.streamlit/secrets.toml
+
+# --- Données ---
+# Ignorer les fichiers CSV autres que les données d'exemple
+# data/*.csv
+# !data/sample_data.csv
+
+# --- Logs ---
+*.log
