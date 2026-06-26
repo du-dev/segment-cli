@@ -168,10 +168,7 @@ with st.sidebar:
     st.markdown("### 📊 Trouver le K optimal")
     lancer_coude = st.button("🔍 Analyser K = 2..10", use_container_width=True)
 
-    st.markdown("---")
 
-    # --- Crédits ---
-    st.caption("Segment-CLI v1.0 — Projet de démonstration")
 
 # =============================================================================
 # === INITIALISATION DU SESSION STATE ===
